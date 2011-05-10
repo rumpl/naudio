@@ -6,9 +6,6 @@ using namespace node;
 struct play_request {
     char* file;
     Persistent<Function> cb;
-    libvlc_instance_t * inst;
-    libvlc_media_player_t *mp;
-    libvlc_media_t *m;    
 };
 
 void Naudio::Init(Handle<Object> target)
