@@ -58,6 +58,27 @@ Handle<Value> Naudio::Play(const Arguments& args)
     return Undefined();
 }
 
+void Naudio::WaitPlaying(libvlc_media_player_t *mp)
+{
+    libvlc_state_t state;
+    do {
+        state = libvlc_media_player_get_state (mp);
+        usleep(50000);
+    } while(state != libvlc_Playing &&
+            state != libvlc_Error &&
+            state != libvlc_Ended );
+}
+
+void Naudio::WaitEnd(libvlc_media_player_t *mp)
+{
+    libvlc_state_t state;
+    do {
+        state = libvlc_media_player_get_state (mp);
+        usleep(100000);
+    } while(state != libvlc_Error &&
+            state != libvlc_Ended );
+}
+
 int Naudio::EIO_Play(eio_req *req)
 {
     struct play_request * pr = (struct play_request *)req->data;
@@ -82,17 +103,9 @@ int Naudio::EIO_Play(eio_req *req)
 
     libvlc_media_player_play (mp);
     
-    // Wait while the sound in not started
-    while(libvlc_media_player_is_playing(mp) == 0)
-    {
-        usleep(100);
-    }
-    
-    // Wait the end of the sound
-    while(libvlc_media_player_is_playing(mp) == 1)
-    {
-        usleep(100);
-    }
+    Naudio::WaitPlaying(mp);
+        
+    Naudio::WaitEnd(mp);
 
     libvlc_media_player_stop (mp);
     
