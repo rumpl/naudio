@@ -47,7 +47,6 @@ Handle<Value> Naudio::Play(const Arguments& args)
     Local<Function> cb = Local<Function>::Cast(args[1]);
     String::Utf8Value input(args[0]->ToString());
     
-    Naudio* hw = ObjectWrap::Unwrap<Naudio>(args.This());
     play_request *pr = new play_request();
     pr->file = strdup(*input);
     pr->cb = Persistent<Function>::New(cb);
@@ -124,7 +123,7 @@ int Naudio::EIO_PlayAfter(eio_req *req)
     TryCatch try_catch;
     Local<Value> argv[1];
     argv[0] = Local<Value>::New(Null());
-    pr->cb->Call(Context::GetCurrent()->Global(), 3, argv);
+    pr->cb->Call(Context::GetCurrent()->Global(), 0, argv);
 
     if (try_catch.HasCaught()) 
     {

@@ -8,11 +8,11 @@ def set_options(opt):
 def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
-  conf.env.append_value("LIBPATH", "/Applications/VLC.app/Contents/MacOS/lib")
-  conf.env.append_value("LIB", "vlc.5")
+  conf.check(lib="vlc", uselib_store="VLC")
    
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
-  obj.cxxflags = ["-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-I/Applications/VLC.app/Contents/MacOS/include"]
+  obj.cxxflags = ["-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"]
+  obj.uselib = ['VLC']
   obj.target = "naudio"
   obj.source = "naudio.cc"
