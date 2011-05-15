@@ -3,7 +3,8 @@
 using namespace v8;
 using namespace node;
 
-struct play_request {
+struct play_request 
+{
     char* file;
     Persistent<Function> cb;
 };
@@ -22,12 +23,12 @@ void Naudio::Init(Handle<Object> target)
     target->Set(String::NewSymbol("Naudio"), s_ct->GetFunction());
 }
 
-Handle<Value> Naudio::New(const Arguments& args) 
+Handle<Value> Naudio::New(const Arguments& args)
 {
     HandleScope scope;
     Naudio *naudio = new Naudio();
     naudio->Wrap(args.This());
-    return args.This();   
+    return args.This();
 }
 
 Handle<Value> Naudio::Play(const Arguments& args)
@@ -38,7 +39,7 @@ Handle<Value> Naudio::Play(const Arguments& args)
     {
         return ThrowException(Exception::Error(String::New("First argument must be a string")));
     }
-    
+
     if (args.Length() == 0 || !args[1]->IsFunction())
     {
         return ThrowException(Exception::Error(String::New("Second argument must be a function")));
@@ -46,7 +47,7 @@ Handle<Value> Naudio::Play(const Arguments& args)
 
     Local<Function> cb = Local<Function>::Cast(args[1]);
     String::Utf8Value input(args[0]->ToString());
-    
+
     play_request *pr = new play_request();
     pr->file = strdup(*input);
     pr->cb = Persistent<Function>::New(cb);
@@ -72,7 +73,7 @@ void Naudio::WaitEnd(libvlc_media_player_t *mp)
 {
     libvlc_state_t state;
     do {
-        state = libvlc_media_player_get_state (mp);
+      state = libvlc_media_player_get_state (mp);
         usleep(100000);
     } while(state != libvlc_Error &&
             state != libvlc_Ended );
@@ -93,25 +94,25 @@ int Naudio::EIO_Play(eio_req *req)
     }
     else
     {
-        m = libvlc_media_new_path (inst, pr->file);        
+        m = libvlc_media_new_path (inst, pr->file);
     }
-    
+
     mp = libvlc_media_player_new_from_media (m);
 
     libvlc_media_release (m);
 
     libvlc_media_player_play (mp);
-    
+
     Naudio::WaitPlaying(mp);
-        
+
     Naudio::WaitEnd(mp);
 
     libvlc_media_player_stop (mp);
-    
+
     libvlc_media_player_release (mp);
-    
+
     libvlc_release (inst);
-    
+
     return 0;
 }
 
@@ -125,7 +126,7 @@ int Naudio::EIO_PlayAfter(eio_req *req)
     argv[0] = Local<Value>::New(Null());
     pr->cb->Call(Context::GetCurrent()->Global(), 0, argv);
 
-    if (try_catch.HasCaught()) 
+    if (try_catch.HasCaught())
     {
         FatalException(try_catch);
     }
