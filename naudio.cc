@@ -3,7 +3,7 @@
 using namespace v8;
 using namespace node;
 
-struct play_request 
+struct play_request
 {
     char* file;
     Persistent<Function> cb;
